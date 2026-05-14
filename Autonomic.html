@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autonomic Computing & IoT – Ethiopian Digital Landscape</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+        oswald: ['Oswald', 'sans-serif'],
+      },
+      colors: {
+        // LEMON THEME COLORS
+        brand: '#eab308',      // Yellow 500
+        brandLight: '#facc15', // Yellow 400
+        brandDark: '#ca8a04',  // Yellow 600
+        dark: '#0f172a',       // Slate 900 (Kept dark for contrast)
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: #0f172a; overflow: hidden; }
+
+  /* TRANSITIONS */
+  .slide { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
+    opacity: 0; transform: scale(0.95); pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+  }
+  .slide.active { opacity: 1; transform: scale(1); pointer-events: all; z-index: 10; }
+  .slide.prev { opacity: 0; transform: scale(1.05); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.3); } 50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.6); } }
+  @keyframes atom-orbit { from { transform: rotate(0deg) translateX(60px) rotate(0deg); } to { transform: rotate(360deg) translateX(60px) rotate(-360deg); } }
+
+  /* STAGGERED ENTRY */
+  .slide.active .anim-1 { animation: fadeIn 0.8s 0.2s both; }
+  .slide.active .anim-2 { animation: fadeIn 0.8s 0.4s both; }
+  .slide.active .anim-3 { animation: fadeIn 0.8s 0.6s both; }
+  .slide.active .anim-4 { animation: fadeIn 0.8s 0.8s both; }
+  .slide.active .anim-5 { animation: fadeIn 0.8s 1.0s both; }
+  .slide.active .anim-6 { animation: fadeIn 0.8s 1.2s both; }
+  .slide.active .anim-left { animation: fadeInLeft 0.8s 0.3s both; }
+  .slide.active .anim-right { animation: fadeInRight 0.8s 0.5s both; }
+  .slide.active .anim-up { animation: fadeInUp 0.8s 0.4s both; }
+  .slide.active .anim-scale { animation: scaleIn 0.8s 0.3s both; }
+  .slide.active .anim-float { animation: float 4s ease-in-out infinite; }
+
+  /* COMPONENT STYLES */
+  .progress-bar { transition: width 0.5s ease; }
+  
+  .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass-light { background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); }
+
+  /* LEMON GRADIENTS */
+  .gradient-text {
+    background: linear-gradient(135deg, #fcd34d, #f59e0b, #d97706);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .card-hover { transition: all 0.4s ease; }
+  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.4); }
+
+  .nav-dot { transition: all 0.3s ease; }
+  .nav-dot.active { background: #eab308; width: 24px; border-radius: 12px; }
+
+  /* ATOM ANIMATION - RECOLORED TO GOLD */
+  .atom-container { position: relative; width: 150px; height: 150px; }
+  .atom-nucleus { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; background: #eab308; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 20px rgba(234,179,8,0.8); }
+  .orbit { position: absolute; top: 50%; left: 50%; border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 50%; transform: translate(-50%, -50%); }
+  .orbit-1 { width: 80px; height: 80px; }
+  .orbit-2 { width: 120px; height: 120px; transform: translate(-50%, -50%) rotate(60deg); }
+  .orbit-3 { width: 120px; height: 120px; transform: translate(-50%, -50%) rotate(-60deg); }
+  .electron { position: absolute; width: 8px; height: 8px; background: #fbbf24; border-radius: 50%; box-shadow: 0 0 10px #fbbf24; }
+  .electron-1 { animation: atom-orbit 2s linear infinite; top: 50%; left: 50%; }
+  .electron-2 { animation: atom-orbit 3s linear infinite reverse; top: 50%; left: 50%; }
+  .electron-3 { animation: atom-orbit 2.5s linear infinite; top: 50%; left: 50%; animation-delay: -1s; }
+
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0.3; animation: float 6s ease-in-out infinite; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(234,179,8,0.5); border-radius: 2px; }
+</style>
+</head>
+<body class="font-inter text-white">
+
+<!-- Progress Bar -->
+<div class="fixed top-0 left-0 w-full h-1 z-50 bg-gray-800/50">
+  <div id="progressBar" class="progress-bar h-full bg-gradient-to-r from-yellow-400 via-amber-500 to-brand" style="width: 4%"></div>
+</div>
+
+<!-- Navigation Dots -->
+<div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1.5" id="navDots"></div>
+
+<!-- Slide Counter -->
+<div class="fixed bottom-6 left-6 z-50 glass px-4 py-2 rounded-full text-xs font-medium text-gray-300">
+  <span id="currentSlide">01</span> / 25
+</div>
+
+<!-- Navigation Arrows -->
+<button onclick="prevSlide()" class="fixed left-6 top-1/2 -translate-y-1/2 z-50 glass w-12 h-12 rounded-full flex items-center justify-center hover:bg-brand/30 transition-all">
+  <iconify-icon icon="lucide:chevron-left" width="20"></iconify-icon>
+</button>
+<button onclick="nextSlide()" class="fixed right-20 top-1/2 -translate-y-1/2 z-50 glass w-12 h-12 rounded-full flex items-center justify-center hover:bg-brand/30 transition-all">
+  <iconify-icon icon="lucide:chevron-right" width="20"></iconify-icon>
+</button>
+
+<!-- ==================== SLIDE 1: Title ==================== -->
+<div class="slide active" data-index="0">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-dark via-dark/90 to-amber-900/20"></div>
+  </div>
+  <div class="particle w-2 h-2 bg-yellow-400 top-[20%] left-[15%]" style="animation-delay:-1s"></div>
+  <div class="particle w-3 h-3 bg-amber-400 top-[60%] left-[80%]" style="animation-delay:-3s"></div>
+  <div class="particle w-1.5 h-1.5 bg-yellow-300 top-[80%] left-[25%]" style="animation-delay:-2s"></div>
+  <div class="particle w-2.5 h-2.5 bg-orange-400 top-[30%] left-[70%]" style="animation-delay:-4s"></div>
+  
+  <div class="relative z-10 h-full flex flex-col justify-center items-center px-6 text-center">
+    <div class="anim-scale mb-8">
+      <div class="atom-container" style="width:160px;height:160px;">
+        <div class="atom-nucleus"></div>
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+        <div class="electron electron-1"></div>
+        <div class="electron electron-2"></div>
+        <div class="electron electron-3"></div>
+      </div>
+    </div>
+    <div class="anim-1 inline-flex items-center gap-2 glass-light px-5 py-2 rounded-full mb-6">
+      <span class="w-2 h-2 bg-brand rounded-full animate-pulse"></span>
+      <span class="text-xs font-bold uppercase tracking-widest text-gray-300">Educational Presentation</span>
+    </div>
+    <h1 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter uppercase leading-[0.85]">
+      <span class="block">Autonomic</span>
+      <span class="block gradient-text">Computing</span>
+    </h1>
+    <p class="anim-3 mt-6 text-lg md:text-xl text-gray-400 font-light max-w-xl">Principles, Architecture, IoT Integration, and the Ethiopian Digital Landscape</p>
+    <div class="anim-4 mt-8 flex flex-wrap justify-center items-center gap-3 text-sm font-semibold uppercase tracking-wider text-gray-400">
+      <span class="px-4 py-2 glass rounded-full">AAU Group 3</span>
+      <span class="px-4 py-2 glass rounded-full">Mr. Hafte Abera</span>
+      <span class="px-4 py-2 glass rounded-full">May 2026</span>
+    </div>
+    <div class="anim-5 mt-12 animate-bounce">
+      <iconify-icon icon="lucide:chevrons-down" width="28" class="text-brand"></iconify-icon>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: Quote ==================== -->
+<div class="slide" data-index="1">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16">
+    <div class="w-full max-w-4xl mx-auto text-center">
+      <iconify-icon icon="lucide:quote" class="text-6xl text-brand/30 mb-8 anim-1"></iconify-icon>
+      <blockquote class="anim-2 text-3xl md:text-5xl font-oswald font-light leading-tight text-white mb-8">
+        "The complexity of IT systems has grown to the point where we risk losing control of them. <span class="gradient-text">Autonomic computing</span> is the answer."
+      </blockquote>
+      <div class="anim-3 flex items-center justify-center gap-4 mt-6">
+        <div class="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center">
+          <iconify-icon icon="lucide:user" width="24" class="text-brand"></iconify-icon>
+        </div>
+        <div class="text-left">
+          <p class="text-xl font-bold text-white">Paul Horn</p>
+          <p class="text-sm text-gray-400">IBM Research Director, 2001</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: Contents ==================== -->
+<div class="slide" data-index="2">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16">
+    <div class="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="anim-1 inline-flex items-center gap-2 mb-4">
+          <div class="w-8 h-[2px] bg-brand"></div>
+          <span class="text-xs font-bold uppercase tracking-widest text-brand">Overview</span>
+        </div>
+        <h2 class="anim-2 font-oswald text-5xl md:text-6xl font-bold tracking-tighter uppercase leading-[0.95]">Contents</h2>
+        <p class="anim-3 mt-4 text-gray-400 font-light text-lg">Comprehensive exploration of Autonomic Computing & IoT — 25 Slides</p>
+      </div>
+      <div class="space-y-3">
+        <div class="anim-left glass card-hover rounded-2xl p-5 flex items-start gap-4 cursor-pointer" onclick="goToSlide(3)">
+          <div class="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-brand font-bold text-lg">01</span></div>
+          <div><h3 class="font-semibold text-white">Introduction & Foundations</h3><p class="text-sm text-gray-400 mt-1">Crisis, inspiration, IBM initiative</p></div>
+        </div>
+        <div class="anim-left glass card-hover rounded-2xl p-5 flex items-start gap-4 cursor-pointer" onclick="goToSlide(7)" style="animation-delay:0.15s">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-amber-400 font-bold text-lg">02</span></div>
+          <div><h3 class="font-semibold text-white">MAPE-K Architecture</h3><p class="text-sm text-gray-400 mt-1">Control loop, self-managing properties</p></div>
+        </div>
+        <div class="anim-left glass card-hover rounded-2xl p-5 flex items-start gap-4 cursor-pointer" onclick="goToSlide(12)" style="animation-delay:0.3s">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-orange-400 font-bold text-lg">03</span></div>
+          <div><h3 class="font-semibold text-white">IoT Platforms</h3><p class="text-sm text-gray-400 mt-1">Commercial, Open Source, Suitability</p></div>
+        </div>
+        <div class="anim-left glass card-hover rounded-2xl p-5 flex items-start gap-4 cursor-pointer" onclick="goToSlide(16)" style="animation-delay:0.45s">
+          <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-red-400 font-bold text-lg">04</span></div>
+          <div><h3 class="font-semibold text-white">Ethiopia's Journey</h3><p class="text-sm text-gray-400 mt-1">ICT timeline, initiatives, adoption</p></div>
+        </div>
+        <div class="anim-left glass card-hover rounded-2xl p-5 flex items-start gap-4 cursor-pointer" onclick="goToSlide(21)" style="animation-delay:0.6s">
+          <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-yellow-400 font-bold text-lg">05</span></div>
+          <div><h3 class="font-semibold text-white">Challenges & Future</h3><p class="text-sm text-gray-400 mt-1">Barriers, opportunities, case studies</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: Chapter 1 Header ==================== -->
+<div class="slide" data-index="3">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-dark via-dark/95 to-dark/60"></div>
+  </div>
+  <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16">
+    <div class="max-w-4xl">
+      <div class="anim-1 inline-flex items-center gap-2 mb-6">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand bg-brand/10 px-3 py-1 rounded-full">Chapter One</span>
+      </div>
+      <h2 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-[120px] font-bold tracking-tighter uppercase leading-[0.85]">
+        Introduction &<br><span class="gradient-text">Foundations</span>
+      </h2>
+      <p class="anim-3 mt-6 text-xl text-gray-400 font-light max-w-lg">From complexity crisis to self-managing systems</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: Complexity Crisis ==================== -->
+<div class="slide" data-index="4">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-start">
+      <div>
+        <div class="anim-1 flex items-center gap-2 mb-4">
+          <div class="w-8 h-[2px] bg-brand"></div>
+          <span class="text-xs font-bold uppercase tracking-widest text-brand">The Problem</span>
+        </div>
+        <h2 class="anim-2 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95]">
+          The Complexity<br><span class="gradient-text">Crisis</span>
+        </h2>
+        <div class="anim-3 mt-6 glass rounded-2xl p-6">
+          <p class="text-gray-300 leading-relaxed">By the late 1990s, managing systems had begun to outpace hardware costs. Systems became brittle and vulnerable.</p>
+        </div>
+        <div class="anim-4 mt-6 grid grid-cols-2 gap-3">
+          <div class="glass-light rounded-xl p-4 text-center card-hover"><iconify-icon icon="lucide:server" width="24" class="text-brand"></iconify-icon><p class="text-xs mt-2 text-gray-400 font-medium">Servers</p></div>
+          <div class="glass-light rounded-xl p-4 text-center card-hover"><iconify-icon icon="lucide:cloud" width="24" class="text-amber-400"></iconify-icon><p class="text-xs mt-2 text-gray-400 font-medium">Cloud</p></div>
+          <div class="glass-light rounded-xl p-4 text-center card-hover"><iconify-icon icon="lucide:shield-alert" width="24" class="text-red-400"></iconify-icon><p class="text-xs mt-2 text-gray-400 font-medium">Vulnerable</p></div>
+          <div class="glass-light rounded-xl p-4 text-center card-hover"><iconify-icon icon="lucide:database" width="24" class="text-orange-400"></iconify-icon><p class="text-xs mt-2 text-gray-400 font-medium">Data</p></div>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <div class="anim-right glass rounded-2xl p-6 border-l-4 border-brand">
+          <h3 class="font-semibold text-brand text-sm uppercase tracking-wider mb-2">Expenditure</h3>
+          <p class="text-6xl font-oswald font-bold text-white mb-2">60-80%</p>
+          <p class="text-sm text-gray-400">of IT costs went to system administration.</p>
+        </div>
+        <div class="anim-right glass rounded-2xl p-6 border-l-4 border-amber-500" style="animation-delay:0.2s">
+          <div class="flex items-start gap-3">
+            <iconify-icon icon="lucide:lightbulb" width="20" class="text-brand mt-0.5 flex-shrink-0"></iconify-icon>
+            <p class="text-sm text-gray-300 leading-relaxed"><span class="text-white font-semibold">Key Insight:</span> Humans can no longer manage the complexity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: Biological Inspiration ==================== -->
+<div class="slide" data-index="5">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto">
+      <div class="anim-1 flex items-center gap-2 mb-3">
+        <div class="w-8 h-[2px] bg-brand"></div>
+        <span class="text-xs font-bold uppercase tracking-widest text-brand">Section 1.2</span>
+      </div>
+      <h2 class="anim-2 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">Biological <span class="gradient-text">Inspiration</span></h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="anim-left glass rounded-3xl overflow-hidden card-hover">
+           <div class="relative h-64 bg-gradient-to-br from-brand/20 to-amber-500/10 flex items-center justify-center">
+             <iconify-icon icon="lucide:brain" class="text-9xl text-brand/50 anim-float"></iconify-icon>
+           </div>
+           <div class="p-8">
+             <h3 class="font-oswald text-2xl font-bold mb-4">Autonomic Nervous System</h3>
+             <p class="text-gray-300 leading-relaxed">Regulates heartbeat, breathing, and digestion without conscious effort.</p>
+           </div>
+        </div>
+        <div class="anim-right space-y-4">
+          <div class="glass rounded-2xl p-6 border-l-4 border-brand">
+             <h3 class="font-semibold text-brand text-sm uppercase tracking-wider mb-2">The Proposal</h3>
+             <p class="text-lg font-medium text-white">"Computing systems should manage themselves."</p>
+             <p class="text-sm text-gray-400 mt-2">— Paul Horn, 2001</p>
+          </div>
+          <div class="glass rounded-2xl p-6">
+             <h4 class="font-bold text-white mb-3">How it works</h4>
+             <ul class="space-y-2 text-sm text-gray-400">
+               <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span> High-level goals set by humans</li>
+               <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span> System handles operational details</li>
+               <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span> Automatic adjustment to changes</li>
+             </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: IBM Definition ==================== -->
+<div class="slide" data-index="6">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex flex-col justify-center items-center px-8 text-center">
+    <div class="anim-1 text-xs font-bold uppercase tracking-widest text-brand mb-8">Section 1.3</div>
+    <h2 class="anim-2 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">IBM's <span class="gradient-text">Initiative</span></h2>
+    <div class="anim-3 glass p-10 rounded-3xl max-w-4xl border border-brand/30 shadow-[0_0_50px_rgba(234,179,8,0.1)]">
+      <h3 class="text-2xl font-bold text-brand mb-4">DEFINITION</h3>
+      <p class="text-xl text-gray-200 leading-relaxed mb-8">
+        Autonomic Computing is a computing model in which IT systems manage themselves using high-level objectives defined by administrators, reducing the need for direct human intervention.
+      </p>
+      <div class="flex flex-wrap justify-center gap-6 text-left">
+        <div class="bg-white/5 p-4 rounded-xl flex-1 min-w-[200px] border border-white/5">
+          <p class="text-brand font-bold text-xl mb-1">2001</p>
+          <p class="text-xs text-gray-400">Coined by IBM</p>
+        </div>
+        <div class="bg-white/5 p-4 rounded-xl flex-1 min-w-[200px] border border-white/5">
+          <p class="text-amber-400 font-bold text-xl mb-1">Analogy</p>
+          <p class="text-xs text-gray-400">Nervous System</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: Chapter 2 Header ==================== -->
+<div class="slide" data-index="7">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-dark via-dark/95 to-dark/60"></div>
+  </div>
+  <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16">
+    <div class="max-w-4xl">
+      <div class="anim-1 inline-flex items-center gap-2 mb-6"><span class="text-xs font-bold uppercase tracking-widest text-brand bg-brand/10 px-3 py-1 rounded-full">Chapter Two</span></div>
+      <h2 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-[120px] font-bold tracking-tighter uppercase leading-[0.85]">MAPE-K<br><span class="gradient-text">Architecture</span></h2>
+      <p class="anim-3 mt-6 text-xl text-gray-400 font-light max-w-lg">The engine of every autonomic computing system</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: MAPE-K Loop Visual ==================== -->
+<div class="slide" data-index="8">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex flex-col items-center justify-center px-8 py-16">
+    <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase mb-12">The <span class="gradient-text">MAPE-K</span> Loop</h2>
+    <div class="w-full max-w-3xl relative aspect-square md:aspect-video flex items-center justify-center anim-2">
+      <!-- Center Knowledge Base -->
+      <div class="absolute w-40 h-40 md:w-52 md:h-52 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center z-20 shadow-[0_0_60px_rgba(234,179,8,0.4)] border-4 border-white/20 animate-pulse-slow">
+        <div class="text-center text-white">
+          <iconify-icon icon="lucide:database" class="text-5xl mx-auto mb-2"></iconify-icon>
+          <span class="block font-bold tracking-widest text-sm">KNOWLEDGE</span>
+        </div>
+      </div>
+
+      <!-- M -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 glass p-5 rounded-xl text-center transform -translate-y-4 md:translate-y-0 z-10 w-36 shadow-lg border-blue-400/30">
+        <div class="text-blue-400 font-bold text-3xl mb-1">M</div>
+        <div class="text-xs font-bold text-gray-300">MONITOR</div>
+      </div>
+      <!-- A -->
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 glass p-5 rounded-xl text-center transform translate-x-4 md:translate-x-0 z-10 w-36 shadow-lg border-cyan-400/30">
+        <div class="text-cyan-400 font-bold text-3xl mb-1">A</div>
+        <div class="text-xs font-bold text-gray-300">ANALYZE</div>
+      </div>
+      <!-- P -->
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 glass p-5 rounded-xl text-center transform translate-y-4 md:translate-y-0 z-10 w-36 shadow-lg border-brand/30">
+        <div class="text-brand font-bold text-3xl mb-1">P</div>
+        <div class="text-xs font-bold text-gray-300">PLAN</div>
+      </div>
+      <!-- E -->
+      <div class="absolute left-0 top-1/2 -translate-y-1/2 glass p-5 rounded-xl text-center transform -translate-x-4 md:translate-x-0 z-10 w-36 shadow-lg border-green-400/30">
+        <div class="text-green-400 font-bold text-3xl mb-1">E</div>
+        <div class="text-xs font-bold text-gray-300">EXECUTE</div>
+      </div>
+    </div>
+    <div class="anim-3 mt-8 glass px-6 py-3 rounded-full text-sm text-gray-400">
+      <iconify-icon icon="lucide:info" class="inline mr-2 text-brand"></iconify-icon>
+      Continuous feedback loop for self-management
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 10: How It Works ==================== -->
+<div class="slide" data-index="9">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-5xl mx-auto">
+      <h2 class="anim-1 font-oswald text-4xl font-bold tracking-tighter uppercase mb-8">How the <span class="gradient-text">Loop Works</span></h2>
+      <div class="space-y-4">
+        <div class="anim-left flex items-center gap-6">
+          <span class="bg-blue-600 text-white font-bold rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0 text-xl">1</span>
+          <div class="glass-card p-5 rounded-xl w-full border-l-4 border-blue-500">
+            <h4 class="font-bold text-blue-400 text-lg">Sensors (Monitor)</h4>
+            <p class="text-sm text-gray-300">Collect data about system state and environment.</p>
+          </div>
+        </div>
+        <div class="anim-left flex items-center gap-6" style="animation-delay:0.1s">
+          <span class="bg-cyan-600 text-white font-bold rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0 text-xl">2</span>
+          <div class="glass-card p-5 rounded-xl w-full border-l-4 border-cyan-500">
+            <h4 class="font-bold text-cyan-400 text-lg">Analysis Engines (Analyze)</h4>
+            <p class="text-sm text-gray-300">Spot problems or opportunities in the data.</p>
+          </div>
+        </div>
+        <div class="anim-left flex items-center gap-6" style="animation-delay:0.2s">
+          <span class="bg-brand text-white font-bold rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0 text-xl">3</span>
+          <div class="glass-card p-5 rounded-xl w-full border-l-4 border-brand">
+            <h4 class="font-bold text-brand text-lg">Planning Modules (Plan)</h4>
+            <p class="text-sm text-gray-300">Decide the best course of action using policies.</p>
+          </div>
+        </div>
+        <div class="anim-left flex items-center gap-6" style="animation-delay:0.3s">
+          <span class="bg-green-600 text-white font-bold rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0 text-xl">4</span>
+          <div class="glass-card p-5 rounded-xl w-full border-l-4 border-green-500">
+            <h4 class="font-bold text-green-400 text-lg">Actuators (Execute)</h4>
+            <p class="text-sm text-gray-300">Execute the plan through software or hardware changes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: Self-* Properties Part 1 ==================== -->
+<div class="slide" data-index="10">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto">
+      <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">The Four <span class="gradient-text">Self-* Properties</span> (1)</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="anim-left glass rounded-3xl p-8 card-hover border-t-4 border-blue-500">
+          <div class="w-16 h-16 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:settings" width="32" class="text-blue-400"></iconify-icon></div>
+          <h3 class="font-oswald text-2xl font-bold mb-2">Self-Configuration</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Automatically configures itself when environment changes. New servers get provisioned with correct OS and software.</p>
+        </div>
+        <div class="anim-right glass rounded-3xl p-8 card-hover border-t-4 border-red-500">
+          <div class="w-16 h-16 rounded-xl bg-red-500/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:heart-pulse" width="32" class="text-red-400"></iconify-icon></div>
+          <h3 class="font-oswald text-2xl font-bold mb-2">Self-Healing</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Detects, diagnoses, and recovers from faults automatically. Crashed microservices restart.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: Self-* Properties Part 2 ==================== -->
+<div class="slide" data-index="11">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto">
+      <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">The Four <span class="gradient-text">Self-* Properties</span> (2)</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="anim-left glass rounded-3xl p-8 card-hover border-t-4 border-brand">
+          <div class="w-16 h-16 rounded-xl bg-brand/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:zap" width="32" class="text-brand"></iconify-icon></div>
+          <h3 class="font-oswald text-2xl font-bold mb-2">Self-Optimization</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Continuously monitors performance and tunes resources. Auto-scaling adds VMs.</p>
+        </div>
+        <div class="anim-right glass rounded-3xl p-8 card-hover border-t-4 border-green-500">
+          <div class="w-16 h-16 rounded-xl bg-green-500/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:shield-check" width="32" class="text-green-400"></iconify-icon></div>
+          <h3 class="font-oswald text-2xl font-bold mb-2">Self-Protection</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Detects and repels attacks while isolating failures. IDS updates firewall rules.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: Chapter 3 Header ==================== -->
+<div class="slide" data-index="12">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-dark via-dark/95 to-dark/60"></div>
+  </div>
+  <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16">
+    <div class="max-w-4xl">
+      <div class="anim-1 inline-flex items-center gap-2 mb-6"><span class="text-xs font-bold uppercase tracking-widest text-brand bg-brand/10 px-3 py-1 rounded-full">Chapter Three</span></div>
+      <h2 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-[110px] font-bold tracking-tighter uppercase leading-[0.85]">IoT<br><span class="gradient-text">Platforms</span></h2>
+      <p class="anim-3 mt-6 text-xl text-gray-400 font-light max-w-lg">How autonomic principles power the world's leading IoT platforms</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: Why Autonomic IoT ==================== -->
+<div class="slide" data-index="13">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-5xl mx-auto text-center">
+      <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-12">Why Autonomic for <span class="gradient-text">IoT?</span></h2>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="anim-left glass p-6 rounded-2xl border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center mx-auto mb-4"><iconify-icon icon="lucide:radar" width="24" class="text-brand"></iconify-icon></div>
+          <h3 class="font-bold text-white mb-2">Auto Discovery</h3>
+          <p class="text-xs text-gray-400">New devices discovered and configured automatically without manual setup.</p>
+        </div>
+        <div class="anim-left glass p-6 rounded-2xl border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mx-auto mb-4"><iconify-icon icon="lucide:cpu" width="24" class="text-green-400"></iconify-icon></div>
+          <h3 class="font-bold text-white mb-2">Edge Decision-Making</h3>
+          <p class="text-xs text-gray-400">Gateways run local decision loops without waiting for cloud instructions.</p>
+        </div>
+        <div class="anim-right glass p-6 rounded-2xl border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mx-auto mb-4"><iconify-icon icon="lucide:wrench-clock" width="24" class="text-yellow-400"></iconify-icon></div>
+          <h3 class="font-bold text-white mb-2">Predictive Maintenance</h3>
+          <p class="text-xs text-gray-400">Sensor data feeds predictive models to catch failures before they happen.</p>
+        </div>
+        <div class="anim-right glass p-6 rounded-2xl border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center mx-auto mb-4"><iconify-icon icon="lucide:lock-alert" width="24" class="text-red-400"></iconify-icon></div>
+          <h3 class="font-bold text-white mb-2">Auto Isolation</h3>
+          <p class="text-xs text-gray-400">Misbehaving devices are isolated automatically before causing wider damage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: Commercial Platforms ==================== -->
+<div class="slide" data-index="14">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-14">
+    <div class="w-full max-w-6xl mx-auto">
+      <div class="anim-1 flex items-center gap-2 mb-3"><div class="w-8 h-[2px] bg-brand"></div><span class="text-xs font-bold uppercase tracking-widest text-brand">Section 3.1</span></div>
+      <h2 class="anim-2 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">Major <span class="gradient-text">Commercial</span> Platforms</h2>
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- AWS -->
+        <div class="anim-left glass rounded-3xl p-6 card-hover flex flex-col h-full border border-white/5">
+          <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center"><iconify-icon icon="lucide:layout-template" width="24" class="text-brand"></iconify-icon></div>
+            <span class="text-xs font-bold text-gray-500">2016</span>
+          </div>
+          <h3 class="font-oswald text-xl font-bold mb-2">AWS IoT Greengrass</h3>
+          <p class="text-xs text-gray-400 mb-6 font-mono">Edge+Cloud Platform</p>
+          <ul class="space-y-2 text-sm text-gray-300 flex-grow">
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-brand"></iconify-icon> Auto discovery</li>
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-brand"></iconify-icon> Local ML inference</li>
+          </ul>
+        </div>
+        <!-- Azure -->
+        <div class="anim-up glass rounded-3xl p-6 card-hover flex flex-col h-full border border-white/5" style="animation-delay:0.2s">
+          <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center"><iconify-icon icon="lucide:cloud-lightning" width="24" class="text-blue-400"></iconify-icon></div>
+            <span class="text-xs font-bold text-gray-500">2014</span>
+          </div>
+          <h3 class="font-oswald text-xl font-bold mb-2">Azure IoT Hub</h3>
+          <p class="text-xs text-gray-400 mb-6 font-mono">Centralized Mgmt</p>
+          <ul class="space-y-2 text-sm text-gray-300 flex-grow">
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-blue-400"></iconify-icon> Device Twins</li>
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-blue-400"></iconify-icon> Auto bulk config</li>
+          </ul>
+        </div>
+        <!-- Google -->
+        <div class="anim-right glass rounded-3xl p-6 card-hover flex flex-col h-full border border-white/5" style="animation-delay:0.4s">
+          <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center"><iconify-icon icon="lucide:brain-circuit" width="24" class="text-green-400"></iconify-icon></div>
+            <span class="text-xs font-bold text-gray-500">2017</span>
+          </div>
+          <h3 class="font-oswald text-xl font-bold mb-2">Google Cloud IoT</h3>
+          <p class="text-xs text-gray-400 mb-6 font-mono">AI/ML Integration</p>
+          <ul class="space-y-2 text-sm text-gray-300 flex-grow">
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-green-400"></iconify-icon> TensorFlow Lite</li>
+            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check" width="14" class="text-green-400"></iconify-icon> Vertex AI models</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 16: Open Source ==================== -->
+<div class="slide" data-index="15">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
+      <div class="anim-left">
+        <h3 class="font-oswald text-3xl font-bold mb-6">Open Source Leaders</h3>
+        <div class="space-y-4">
+          <div class="glass p-5 rounded-xl border-l-4 border-brand card-hover">
+            <h4 class="font-bold text-brand mb-1">FIWARE</h4>
+            <p class="text-sm text-gray-400 mb-2">EU-Backed, Smart Cities</p>
+            <p class="text-xs text-gray-300">NGSI-LD context broker, zero licensing cost, ideal for public sector.</p>
+          </div>
+          <div class="glass p-5 rounded-xl border-l-4 border-purple-500 card-hover">
+            <h4 class="font-bold text-purple-400 mb-1">Eclipse IoT</h4>
+            <p class="text-sm text-gray-400 mb-2">Industrial, Open Source</p>
+            <p class="text-xs text-gray-300">Ditto (Digital Twins), Kura (Edge), Hono (Messaging).</p>
+          </div>
+        </div>
+      </div>
+      <div class="anim-right glass p-8 rounded-3xl bg-brand/10 border border-brand/30">
+        <h3 class="font-oswald text-2xl font-bold text-brand mb-4">Suitability for Ethiopia</h3>
+        <div class="space-y-4">
+          <div class="flex items-start gap-3">
+            <iconify-icon icon="lucide:check-circle" width="20" class="text-green-400 flex-shrink-0 mt-0.5"></iconify-icon>
+            <p class="text-sm text-gray-300"><span class="font-bold text-white">Zero Licensing Costs:</span> Crucial for financial constraints.</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <iconify-icon icon="lucide:check-circle" width="20" class="text-green-400 flex-shrink-0 mt-0.5"></iconify-icon>
+            <p class="text-sm text-gray-300"><span class="font-bold text-white">Smart City Alignment:</span> Perfect for government initiatives.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 17: Chapter 4 Header ==================== -->
+<div class="slide" data-index="16">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-dark via-dark/95 to-dark/60"></div>
+  </div>
+  <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16">
+    <div class="max-w-4xl">
+      <div class="anim-1 inline-flex items-center gap-2 mb-6"><span class="text-xs font-bold uppercase tracking-widest text-brand bg-brand/10 px-3 py-1 rounded-full">Chapter Four</span></div>
+      <h2 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-[110px] font-bold tracking-tighter uppercase leading-[0.85]">Ethiopia's<br><span class="gradient-text">Journey</span></h2>
+      <p class="anim-3 mt-6 text-xl text-gray-400 font-light max-w-lg">From telecommunications monopoly to Digital Ethiopia 2025</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 18: Ethiopia Stats ==================== -->
+<div class="slide" data-index="17">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-14">
+    <div class="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-10">
+      <div class="anim-left space-y-4">
+        <h3 class="font-oswald text-2xl font-bold mb-4">Ethiopia at a Glance (2025)</h3>
+        <div class="glass p-5 rounded-2xl flex items-center gap-4 card-hover">
+          <div class="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-2xl font-bold text-blue-400">127M</span></div>
+          <div><p class="text-sm font-bold text-white">Population</p><p class="text-xs text-gray-400">Rapidly growing market</p></div>
+        </div>
+        <div class="glass p-5 rounded-2xl flex items-center gap-4 card-hover">
+          <div class="w-14 h-14 rounded-xl bg-brand/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-2xl font-bold text-brand">~26%</span></div>
+          <div><p class="text-sm font-bold text-white">Internet Penetration</p><p class="text-xs text-gray-400">Up from <1% in 2010</p></div>
+        </div>
+        <div class="glass p-5 rounded-2xl flex items-center gap-4 card-hover">
+          <div class="w-14 h-14 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0"><span class="font-oswald text-2xl font-bold text-green-400">~60M</span></div>
+          <div><p class="text-sm font-bold text-white">Mobile Subscribers</p><p class="text-xs text-gray-400">Safaricom competition</p></div>
+        </div>
+      </div>
+      <div class="anim-right">
+        <h3 class="font-oswald text-2xl font-bold mb-6">Leading Universities</h3>
+        <div class="glass p-6 rounded-2xl border border-white/5">
+            <ul class="space-y-3 text-gray-300">
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span>Addis Ababa University (AAU)</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span>AASTU & AAiT</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand rounded-full"></span>Bahir Dar University</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 19: Timeline ==================== -->
+<div class="slide" data-index="18">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-14">
+    <div class="w-full max-w-6xl mx-auto">
+      <h3 class="anim-1 font-oswald text-2xl font-bold mb-6">ICT Development Timeline</h3>
+      <div class="anim-2 space-y-4">
+         <div class="flex gap-4 items-start">
+           <div class="w-16 text-right"><span class="font-oswald text-xl font-bold text-blue-400">1990s</span></div>
+           <div class="h-[2px] bg-gray-700 flex-1 mt-2.5"></div>
+           <div class="flex-1"><p class="text-sm text-gray-300">State monopoly. No internet.</p></div>
+         </div>
+         <div class="flex gap-4 items-start">
+           <div class="w-16 text-right"><span class="font-oswald text-xl font-bold text-amber-400">2001</span></div>
+           <div class="h-[2px] bg-gray-700 flex-1 mt-2.5"></div>
+           <div class="flex-1"><p class="text-sm text-gray-300">ICTAD strategy launched.</p></div>
+         </div>
+         <div class="flex gap-4 items-start">
+           <div class="w-16 text-right"><span class="font-oswald text-xl font-bold text-brand">2016</span></div>
+           <div class="h-[2px] bg-gray-700 flex-1 mt-2.5"></div>
+           <div class="flex-1"><p class="text-sm text-gray-300">4G rollout. Digital Ethiopia 2025.</p></div>
+         </div>
+         <div class="flex gap-4 items-start">
+           <div class="w-16 text-right"><span class="font-oswald text-xl font-bold text-green-400">2025</span></div>
+           <div class="h-[2px] bg-brand flex-1 mt-2.5 shadow-[0_0_10px_#eab308]"></div>
+           <div class="flex-1"><p class="text-sm text-gray-300 font-bold">5G Pilots. Smart Cities.</p></div>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 20: Initiatives ==================== -->
+<div class="slide" data-index="19">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto">
+      <div class="anim-1 flex items-center gap-2 mb-3"><div class="w-8 h-[2px] bg-brand"></div><span class="text-xs font-bold uppercase tracking-widest text-brand">Section 4.2</span></div>
+      <h2 class="anim-2 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">IoT <span class="gradient-text">Initiatives</span></h2>
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="anim-left glass rounded-3xl p-6 card-hover border-t-4 border-green-500">
+          <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:sprout" width="24" class="text-green-400"></iconify-icon></div>
+          <h3 class="font-oswald text-xl font-bold mb-2">Smart Agriculture</h3>
+          <p class="text-xs text-gray-400 mb-4">Oromia & Afar</p>
+          <p class="text-sm text-gray-300">Soil moisture sensors, weather stations, automated irrigation.</p>
+        </div>
+        <div class="anim-up glass rounded-3xl p-6 card-hover border-t-4 border-brand" style="animation-delay:0.2s">
+          <div class="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:lightbulb" width="24" class="text-brand"></iconify-icon></div>
+          <h3 class="font-oswald text-xl font-bold mb-2">Smart Lighting</h3>
+          <p class="text-xs text-gray-400 mb-4">Addis Ababa</p>
+          <p class="text-sm text-gray-300">LEDs adjusting to ambient light. 40-60% energy reduction.</p>
+        </div>
+        <div class="anim-right glass rounded-3xl p-6 card-hover border-t-4 border-blue-500" style="animation-delay:0.4s">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><iconify-icon icon="lucide:zap" width="24" class="text-blue-400"></iconify-icon></div>
+          <h3 class="font-oswald text-xl font-bold mb-2">Smart Metering</h3>
+          <p class="text-xs text-gray-400 mb-4">Pilot Phase</p>
+          <p class="text-sm text-gray-300">Consumption data transmitted autonomously.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 21: Platform Adoption ==================== -->
+<div class="slide" data-index="20">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-4xl mx-auto">
+        <h2 class="anim-1 font-oswald text-4xl font-bold tracking-tighter uppercase mb-8">Platform <span class="gradient-text">Adoption</span> in Ethiopia</h2>
+        <div class="anim-2 glass p-8 rounded-3xl border border-white/5">
+            <p class="text-lg text-gray-300 mb-6">Given financial constraints, platform selection strongly favors open-source options.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <h4 class="font-bold text-brand mb-2">ThingsBoard</h4>
+                    <p class="text-xs text-gray-400">Community edition for Smart Agriculture.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <h4 class="font-bold text-brand mb-2">Node-RED</h4>
+                    <p class="text-xs text-gray-400">Visual programming for University Training.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <h4 class="font-bold text-brand mb-2">FIWARE</h4>
+                    <p class="text-xs text-gray-400">Smart City & e-Government implementations.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <h4 class="font-bold text-brand mb-2">Eclipse IoT</h4>
+                    <p class="text-xs text-gray-400">Industrial applications.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 22: Chapter 5 Header ==================== -->
+<div class="slide" data-index="21">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-dark via-dark/95 to-dark/60"></div>
+  </div>
+  <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-16">
+    <div class="max-w-4xl">
+      <div class="anim-1 inline-flex items-center gap-2 mb-6"><span class="text-xs font-bold uppercase tracking-widest text-brand bg-brand/10 px-3 py-1 rounded-full">Chapter Five</span></div>
+      <h2 class="anim-2 font-oswald text-6xl md:text-8xl lg:text-[110px] font-bold tracking-tighter uppercase leading-[0.85]">Challenges &<br><span class="gradient-text">Future</span></h2>
+      <p class="anim-3 mt-6 text-xl text-gray-400 font-light max-w-lg">Addressing barriers while seizing opportunities for leapfrog development</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 23: Challenges & Opps ==================== -->
+<div class="slide" data-index="22">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-16">
+    <div class="w-full max-w-6xl mx-auto">
+      <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">Challenges & <span class="gradient-text">Future</span></h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="anim-left">
+           <h3 class="text-2xl font-bold text-red-400 mb-4">Barriers</h3>
+           <div class="space-y-3">
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:x-circle" width="18" class="text-red-400"></iconify-icon><span class="text-sm text-gray-300">Unreliable electricity in rural areas</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:x-circle" width="18" class="text-red-400"></iconify-icon><span class="text-sm text-gray-300">High hardware costs vs income</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:x-circle" width="18" class="text-red-400"></iconify-icon><span class="text-sm text-gray-300">Brain drain of skilled professionals</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:x-circle" width="18" class="text-red-400"></iconify-icon><span class="text-sm text-gray-300">Cybersecurity risks in autonomous systems</span></div>
+           </div>
+        </div>
+        <div class="anim-right">
+           <h3 class="text-2xl font-bold text-green-400 mb-4">Opportunities</h3>
+           <div class="space-y-3">
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:check-circle" width="18" class="text-green-400"></iconify-icon><span class="text-sm text-gray-300">Leapfrogging older tech generations</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:check-circle" width="18" class="text-green-400"></iconify-icon><span class="text-sm text-gray-300">AI & Machine Learning integration</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:check-circle" width="18" class="text-green-400"></iconify-icon><span class="text-sm text-gray-300">Regional leadership via AU Strategy</span></div>
+             <div class="glass p-3 rounded-xl flex items-center gap-3"><iconify-icon icon="lucide:check-circle" width="18" class="text-green-400"></iconify-icon><span class="text-sm text-gray-300">Open-source eliminating cost barriers</span></div>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 24: Case Studies ==================== -->
+<div class="slide" data-index="23">
+  <div class="absolute inset-0 bg-gradient-to-br from-dark via-slate-900 to-dark"></div>
+  <div class="relative z-10 h-full flex items-center px-8 md:px-16 py-14">
+    <div class="w-full max-w-6xl mx-auto">
+      <h2 class="anim-1 font-oswald text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-[0.95] mb-8">Real-World <span class="gradient-text">Impact</span></h2>
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="anim-left glass p-6 rounded-2xl border-t-4 border-green-500">
+            <h3 class="font-bold text-green-400 mb-1">Upper Awash Agri</h3>
+            <p class="text-xs text-gray-500 mb-4">Autonomous Irrigation</p>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Water Saved</span>
+                <span class="font-oswald font-bold text-xl text-green-400">35%</span>
+            </div>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Yield Gain</span>
+                <span class="font-oswald font-bold text-xl text-green-400">22%</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Demonstrated self-healing and optimization.</p>
+        </div>
+        <div class="anim-up glass p-6 rounded-2xl border-t-4 border-blue-500" style="animation-delay:0.2s">
+            <h3 class="font-bold text-blue-400 mb-1">CBE AIOps</h3>
+            <p class="text-xs text-gray-500 mb-4">Anomaly Detection</p>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Availability</span>
+                <span class="font-oswald font-bold text-xl text-blue-400">99.5%</span>
+            </div>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Recovery Time</span>
+                <span class="font-oswald font-bold text-xl text-blue-400">8m</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">1,700 branches managed efficiently.</p>
+        </div>
+        <div class="anim-right glass p-6 rounded-2xl border-t-4 border-brand" style="animation-delay:0.4s">
+            <h3 class="font-bold text-brand mb-1">Bole Lighting</h3>
+            <p class="text-xs text-gray-500 mb-4">Smart City</p>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Energy Saved</span>
+                <span class="font-oswald font-bold text-xl text-brand">48%</span>
+            </div>
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-sm text-gray-300">Fix Time</span>
+                <span class="font-oswald font-bold text-xl text-brand">4h</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">City expanding to all sub-cities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 25: Conclusion ==================== -->
+<div class="slide" data-index="24">
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-dark via-dark/90 to-brand/20"></div>
+  </div>
+  <div class="particle w-2 h-2 bg-brand top-[10%] left-[10%]" style="animation-delay:-1s"></div>
+  <div class="particle w-3 h-3 bg-amber-400 top-[20%] left-[85%]" style="animation-delay:-2s"></div>
+  <div class="particle w-1.5 h-1.5 bg-yellow-300 top-[75%] left-[15%]" style="animation-delay:-3s"></div>
+  
+  <div class="relative z-10 h-full flex flex-col justify-center items-center px-8 text-center">
+    <div class="anim-scale mb-8">
+      <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center mx-auto shadow-2xl shadow-brand/30" style="animation: pulse-glow 3s infinite;">
+        <iconify-icon icon="lucide:sparkles" width="36" class="text-white"></iconify-icon>
+      </div>
+    </div>
+
+    <div class="anim-1 text-xs font-bold uppercase tracking-widest text-brand mb-4">Conclusion</div>
+
+    <h2 class="anim-2 font-oswald text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter uppercase leading-[0.85]">
+      The Future is<br><span class="gradient-text">Autonomic</span>
+    </h2>
+
+    <p class="anim-3 mt-6 text-gray-400 max-w-2xl text-lg font-light leading-relaxed">
+      Ethiopia stands at a genuine inflection point. By adopting self-managing, intelligent digital systems, the country can move from being a passive consumer to a regional innovator.
+    </p>
+
+    <div class="anim-4 mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl w-full">
+      <div class="glass rounded-2xl p-5 text-center card-hover">
+        <div class="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center mx-auto mb-3"><iconify-icon icon="lucide:layers" width="22" class="text-brand"></iconify-icon></div>
+        <p class="text-sm font-semibold">MAPE-K</p>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center card-hover">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mx-auto mb-3"><iconify-icon icon="lucide:cpu" width="22" class="text-blue-400"></iconify-icon></div>
+        <p class="text-sm font-semibold">IoT Platforms</p>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center card-hover">
+        <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mx-auto mb-3"><iconify-icon icon="lucide:leaf" width="22" class="text-green-400"></iconify-icon></div>
+        <p class="text-sm font-semibold">Local Impact</p>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center card-hover">
+        <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center mx-auto mb-3"><iconify-icon icon="lucide:rocket" width="22" class="text-orange-400"></iconify-icon></div>
+        <p class="text-sm font-semibold">Leapfrogging</p>
+      </div>
+    </div>
+
+    <div class="anim-5 mt-10 flex items-center gap-4">
+      <div class="h-[1px] w-12 bg-gradient-to-r from-transparent to-brand"></div>
+      <p class="text-xs font-bold uppercase tracking-widest text-gray-500">Group 3 | AAU | May 2026</p>
+      <div class="h-[1px] w-12 bg-gradient-to-l from-transparent to-brand"></div>
+    </div>
+
+    <div class="anim-6 mt-6 flex items-center gap-2 text-brand/60 cursor-pointer hover:text-brand transition-colors" onclick="goToSlide(0)">
+      <iconify-icon icon="lucide:rotate-ccw" width="14"></iconify-icon>
+      <span class="text-xs font-medium uppercase tracking-wider">Back to Start</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 glass px-5 py-3 rounded-full text-sm font-medium text-white opacity-0 transition-all duration-300 pointer-events-none translate-y-4">
+  Use arrow keys, scroll, or swipe to navigate
+</div>
+
+<script>
+const totalSlides = 25;
+let currentSlide = 0;
+let isTransitioning = false;
+
+// Generate nav dots
+const navDotsContainer = document.getElementById('navDots');
+for (let i = 0; i < totalSlides; i++) {
+  const dot = document.createElement('button');
+  dot.className = `nav-dot w-3 h-3 bg-gray-500 rounded-full${i === 0 ? ' active' : ''}`;
+  dot.dataset.slide = i;
+  dot.onclick = () => goToSlide(i);
+  navDotsContainer.appendChild(dot);
+}
+
+function goToSlide(index) {
+  if (isTransitioning || index === currentSlide || index < 0 || index >= totalSlides) return;
+  isTransitioning = true;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  slides[currentSlide].classList.remove('active');
+  slides[currentSlide].classList.add('prev');
+  setTimeout(() => {
+    slides[currentSlide].classList.remove('prev');
+    currentSlide = index;
+    slides[currentSlide].classList.add('active');
+    dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    document.getElementById('currentSlide').textContent = String(currentSlide + 1).padStart(2, '0');
+    document.getElementById('progressBar').style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+    setTimeout(() => { isTransitioning = false; }, 400);
+  }, 100);
+}
+
+function nextSlide() { goToSlide(currentSlide + 1); }
+function prevSlide() { goToSlide(currentSlide - 1); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevSlide(); }
+});
+
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; });
+document.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) { dx < 0 ? nextSlide() : prevSlide(); }
+});
+
+let wheelTimeout;
+document.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  clearTimeout(wheelTimeout);
+  wheelTimeout = setTimeout(() => { e.deltaY > 0 ? nextSlide() : prevSlide(); }, 60);
+}, { passive: false });
+
+// Show toast
+setTimeout(() => {
+  const toast = document.getElementById('toast');
+  toast.style.opacity = '1';
+  toast.style.transform = 'translate(-50%, 0)';
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 16px)'; }, 3500);
+}, 1500);
+</script>
+</body>
+</html>
